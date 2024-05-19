@@ -22,7 +22,7 @@
      exit -> save the parameters and exit the calibration mode
  ****************************************************/
 
-#include <EEPROM.h>
+//#include <EEPROM.h>
 #include "GravityTDS.h"
 
 #define TdsSensorPin A1
