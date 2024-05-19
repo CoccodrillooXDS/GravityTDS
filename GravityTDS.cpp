@@ -14,11 +14,13 @@
  All above must be included in any redistribution.
  ****************************************************/
 
-#include <EEPROM.h>
+//#include <EEPROM.h>
 #include "GravityTDS.h"
 
+/*
 #define EEPROM_write(address, p) {int i = 0; byte *pp = (byte*)&(p);for(; i < sizeof(p); i++) EEPROM.write(address+i, pp[i]);}
 #define EEPROM_read(address, p)  {int i = 0; byte *pp = (byte*)&(p);for(; i < sizeof(p); i++) pp[i]=EEPROM.read(address+i);}
+*/
 
 GravityTDS::GravityTDS()
 {
@@ -77,7 +79,8 @@ void GravityTDS::update()
 	this->ecValue=(133.42*this->voltage*this->voltage*this->voltage - 255.86*this->voltage*this->voltage + 857.39*this->voltage)*this->kValue;
 	this->ecValue25  =  this->ecValue / (1.0+0.02*(this->temperature-25.0));  //temperature compensation
 	this->tdsValue = ecValue25 * TdsFactor;
-	if(cmdSerialDataAvailable() > 0)
+
+  if(cmdSerialDataAvailable() > 0)
         {
             ecCalibration(cmdParse());  // if received serial cmd from the serial monitor, enter into the calibration mode
         }
@@ -96,12 +99,14 @@ float GravityTDS::getEcValue()
 
 void GravityTDS::readKValues()
 {
+    /*
     EEPROM_read(this->kValueAddress, this->kValue);  
     if(EEPROM.read(this->kValueAddress)==0xFF && EEPROM.read(this->kValueAddress+1)==0xFF && EEPROM.read(this->kValueAddress+2)==0xFF && EEPROM.read(this->kValueAddress+3)==0xFF)
     {
       this->kValue = 1.0;   // default value: K = 1.0
       EEPROM_write(this->kValueAddress, this->kValue);
     }
+    */
 }
 
 boolean GravityTDS::cmdSerialDataAvailable()
@@ -175,21 +180,22 @@ void GravityTDS::ecCalibration(byte mode)
          // Serial.print("  ecvalue:");
          // Serial.println(ecValue);
           KValueTemp = rawECsolution/(133.42*voltage*voltage*voltage - 255.86*voltage*voltage + 857.39*voltage);  //calibrate in the  buffer solution, such as 707ppm(1413us/cm)@25^c
-          if((rawECsolution>0) && (rawECsolution<2000) && (KValueTemp>0.25) && (KValueTemp<4.0))
-          {
+          // if((rawECsolution>0) && (rawECsolution<2000) && (KValueTemp>0.25) && (KValueTemp<4.0))
+          // {
               Serial.println();
               Serial.print(F(">>>Confrim Successful,K:"));
               Serial.print(KValueTemp);
               Serial.println(F(", Send EXIT to Save and Exit<<<"));
               kValue =  KValueTemp;
               ecCalibrationFinish = 1;
-          }
+          /* }
           else{
             Serial.println();
             Serial.println(F(">>>Confirm Failed,Try Again<<<"));
             Serial.println();
             ecCalibrationFinish = 0;
-          }        
+          }
+          */
       }
       break;
 
@@ -199,7 +205,7 @@ void GravityTDS::ecCalibration(byte mode)
             Serial.println();
             if(ecCalibrationFinish)
             {
-               EEPROM_write(kValueAddress, kValue);
+               //EEPROM_write(kValueAddress, kValue);
                Serial.print(F(">>>Calibration Successful,K Value Saved"));
             }
             else Serial.print(F(">>>Calibration Failed"));       
